@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identificação de Plantas</title>
+</head>
+<body>
+    <h1>Identificação de Plantas</h1>
+    <input type="file" accept="image/*" id="upload" capture="environment">
+    <button onclick="identificarPlanta()">Identificar Planta</button>
+    <p id="resultado"></p>
+    
+    <script>
+        async function identificarPlanta() {
+            const input = document.getElementById('upload');
+            if (!input.files.length) {
+                alert('Por favor, tire uma foto da planta.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append("images", input.files[0]);
+            formData.append("organs", "leaf");
+            formData.append("project", "all");
+            
+            try {
+                const response = await fetch("https://my.plantnet.org/api/v2/identify", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "Authorization": "Bearer 2b10j4saS6Fi5Hi79epl3EQAi"
+                    }
+                });
+                const data = await response.json();
+                if (data.results.length > 0) {
+                    const planta = data.results[0].species.scientificName;
+                    document.getElementById("resultado").innerHTML = `Planta identificada: ${planta}`;
+                    // Aqui você pode redirecionar para a página da planta
+                } else {
+                    document.getElementById("resultado").innerHTML = "Não foi possível identificar a planta.";
+                }
+            } catch (error) {
+                console.error("Erro ao identificar a planta", error);
+            }
+        }
+    </script>
+</body>
+</html>
